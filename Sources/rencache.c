@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "rencache.h"
+#include <string.h>
+#include <stdlib.h>
 
 /* a cache over the software renderer -- all drawing operations are stored as
 ** commands when issued. At the end of the frame we write the commands to a grid
@@ -34,8 +36,8 @@ static RenRect screen_rect;
 static bool show_debug;
 
 
-static inline int min(int a, int b) { return a < b ? a : b; }
-static inline int max(int a, int b) { return a > b ? a : b; }
+static inline int min_f(int a, int b) { return a < b ? a : b; }
+static inline int max_f(int a, int b) { return a > b ? a : b; }
 
 /* 32bit fnv-1a hash */
 #define HASH_INITIAL 2166136261
@@ -60,19 +62,19 @@ static inline bool rects_overlap(RenRect a, RenRect b) {
 
 
 static RenRect intersect_rects(RenRect a, RenRect b) {
-  int x1 = max(a.x, b.x);
-  int y1 = max(a.y, b.y);
-  int x2 = min(a.x + a.width, b.x + b.width);
-  int y2 = min(a.y + a.height, b.y + b.height);
-  return (RenRect) { x1, y1, max(0, x2 - x1), max(0, y2 - y1) };
+  int x1 = max_f(a.x, b.x);
+  int y1 = max_f(a.y, b.y);
+  int x2 = min_f(a.x + a.width, b.x + b.width);
+  int y2 = min_f(a.y + a.height, b.y + b.height);
+  return (RenRect) { x1, y1, max_f(0, x2 - x1), max_f(0, y2 - y1) };
 }
 
 
 static RenRect merge_rects(RenRect a, RenRect b) {
-  int x1 = min(a.x, b.x);
-  int y1 = min(a.y, b.y);
-  int x2 = max(a.x + a.width, b.x + b.width);
-  int y2 = max(a.y + a.height, b.y + b.height);
+  int x1 = min_f(a.x, b.x);
+  int y1 = min_f(a.y, b.y);
+  int x2 = max_f(a.x + a.width, b.x + b.width);
+  int y2 = max_f(a.y + a.height, b.y + b.height);
   return (RenRect) { x1, y1, x2 - x1, y2 - y1 };
 }
 

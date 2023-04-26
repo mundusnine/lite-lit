@@ -1,5 +1,4 @@
-#ifndef RENCACHE_H
-#define RENCACHE_H
+#pragma once
 
 #include <stdbool.h>
 #include "renderer.h"
@@ -12,5 +11,3 @@ int  rencache_draw_text(RenFont *font, const char *text, int x, int y, RenColor 
 void rencache_invalidate(void);
 void rencache_begin_frame(void);
 void rencache_end_frame(void);
-
-#endif

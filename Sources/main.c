@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "fenster.h"
-#include "api/api.h"
 #include "renderer.h"
+#include "debugger.h"
+#include "api/api.h"
 
 // "Windows"
 // "Mac OS X"
@@ -36,7 +37,7 @@ static double get_scale(void) {
 
 static void get_exe_filename(char *buf, int sz) {
 #if _WIN32
-  int len = GetModuleFileName(NULL, buf, sz - 1);
+  int len = GetModuleFileNameA(NULL, buf, sz - 1);
   buf[len] = '\0';
 #elif __linux__
   char path[512];
@@ -67,6 +68,31 @@ static void init_window_icon(void) {
   SDL_FreeSurface(surf);
 #endif
 }
+static lua_State *L = NULL;
+void ready(void) {
+
+  (void) luaL_dostring(L,
+  "local core\n"
+  "  print(\"Yolo\")"
+  "xpcall(function()\n"
+  "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
+  "  PATHSEP = package.config:sub(1, 1)\n"
+  "  EXEDIR = EXEFILE:match(\"^(.+)[/\\\\].*$\")\n"
+  "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
+  "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
+  "  core = require('core')\n"
+  "  core.init()\n"
+  "  core.run()\n"
+  "end, function(err)\n"
+  "  print('Error: ' .. tostring(err))\n"
+  "  print(debug.traceback(nil, 2))\n"
+  "  if core and core.on_error then\n"
+  "    pcall(core.on_error, err)\n"
+  "  end\n"
+  "  os.exit(1)\n"
+  "end)");
+}
+
 fenster_t* f;
 int main(int argc, char **argv) {
     int width = 1280;
@@ -82,15 +108,14 @@ int main(int argc, char **argv) {
     }
     #endif
 
-    f = malloc(sizeof(fenster_t));
+    f = (fenster_t*)malloc(sizeof(fenster_t));
     memset(f, 0, sizeof(fenster_t));
     f->title = "lit";
     f->width = width * 0.8;
     f->height = height * 0.8;
-    f->buf = malloc(sizeof(uint32_t) * f->width * f->height);
+    f->buf = (uint32_t*)malloc(sizeof(uint32_t) * f->width * f->height);
     memset(f->buf, 0, sizeof(uint32_t) * f->width * f->height);
     fenster_open(f);
-    fenster_loop(f);
     // SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
     // SDL_EnableScreenSaver();
     // SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
@@ -113,7 +138,7 @@ int main(int argc, char **argv) {
     ren_init(f);
 
 
-    lua_State *L = luaL_newstate();
+    L = luaL_newstate();
     luaL_openlibs(L);
     api_load_libs(L);
 
@@ -139,27 +164,10 @@ int main(int argc, char **argv) {
     lua_pushstring(L, exename);
     lua_setglobal(L, "EXEFILE");
 
+    ready();
+    // start_debugger(L, -1,ready);
 
-    (void) luaL_dostring(L,
-    "local core\n"
-    "xpcall(function()\n"
-    "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
-    "  PATHSEP = package.config:sub(1, 1)\n"
-    "  EXEDIR = EXEFILE:match(\"^(.+)[/\\\\].*$\")\n"
-    "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
-    "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
-    "  core = require('core')\n"
-    "  core.init()\n"
-    "  core.run()\n"
-    "end, function(err)\n"
-    "  print('Error: ' .. tostring(err))\n"
-    "  print(debug.traceback(nil, 2))\n"
-    "  if core and core.on_error then\n"
-    "    pcall(core.on_error, err)\n"
-    "  end\n"
-    "  os.exit(1)\n"
-    "end)");
-
+    // waitfor_debugger();
 
     lua_close(L);
     fenster_close(f);

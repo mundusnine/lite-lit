@@ -4,3 +4,6 @@
 [submodule "Tools/windows_x64"]
 	path = Tools/windows_x64
 	url = https://github.com/Kode/KincTools_windows_x64.git
+[submodule "Libraries/LRDB"]
+	path = Libraries/LRDB
+	url = https://github.com/mundusnine/LRDB.git
