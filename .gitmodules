@@ -1,0 +1,6 @@
+[submodule "Libraries/fenster"]
+	path = Libraries/fenster
+	url = https://github.com/mundusnine/fenster.git
+[submodule "Tools/windows_x64"]
+	path = Tools/windows_x64
+	url = https://github.com/Kode/KincTools_windows_x64.git

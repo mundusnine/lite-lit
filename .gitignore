@@ -1,0 +1,10 @@
+build
+Deployment/**
+!Deployment/core
+!Deployment/core/**
+!Deployment/fonts
+!Deployment/fonts/**
+!Deployment/plugins
+!Deployment/plugins/**
+!Deployment/user
+!Deployment/user/**
