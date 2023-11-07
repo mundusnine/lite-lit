@@ -1,0 +1,3 @@
+- [ ] Add [DAP protocol](https://microsoft.github.io/debug-adapter-protocol/overview)
+- [ ] Add [luau debugger](https://www.youtube.com/watch?v=bTYMA54G04M)
+- [ ] Add lsp based on lite-xl lsp
